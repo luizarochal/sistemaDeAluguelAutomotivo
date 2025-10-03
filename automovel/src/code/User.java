@@ -1,6 +1,6 @@
 package sistemaDeAluguelAutomotivo.implementacao.code;
 
-public class Usuario {
+public class User {
     public void cadastrar() {
 
     }

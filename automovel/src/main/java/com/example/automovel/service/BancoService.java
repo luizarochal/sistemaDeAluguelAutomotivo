@@ -8,12 +8,16 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import com.example.automovel.model.Pedido;
 
 @Service
 public class BancoService {
 
     @Autowired
     private BancoRepository bancoRepository;
+
+    @Autowired
+    private PedidoService pedidoService;
 
     public List<Banco> listarTodos() {
         return bancoRepository.findAll();
@@ -68,5 +72,9 @@ public class BancoService {
         if (bancoDTO.getNome() == null || bancoDTO.getNome().trim().isEmpty()) {
             throw new IllegalArgumentException("Nome do banco é obrigatório");
         }
+    }
+
+    public void avaliarPedido(Pedido pedido) {
+        // Lógica para avaliar o pedido
     }
 }

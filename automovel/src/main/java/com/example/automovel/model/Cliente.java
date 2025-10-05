@@ -1,7 +1,6 @@
 package com.example.automovel.model;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.*;
 import java.util.List;
 
 @Entity

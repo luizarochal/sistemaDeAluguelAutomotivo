@@ -36,10 +36,10 @@ public class Pedido {
     @Column(nullable = false)
     private StatusPedido status;
 
-    @Column(precision = 10, scale = 2)
+    @Column(columnDefinition = "DOUBLE")
     private Double valorDiaria;
 
-    @Column(precision = 10, scale = 2)
+    @Column(columnDefinition = "DOUBLE")
     private Double valorTotal;
 
     @Column(length = 1000)

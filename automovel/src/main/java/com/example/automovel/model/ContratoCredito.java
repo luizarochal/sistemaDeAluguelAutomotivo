@@ -13,16 +13,16 @@ public class ContratoCredito extends Contrato {
     @JoinColumn(name = "banco_id", nullable = false)
     private Banco banco;
 
-    @Column(nullable = false, precision = 10, scale = 2)
+    @Column(nullable = false, columnDefinition = "DOUBLE")
     private Double valorFinanciado;
 
     @Column(nullable = false)
     private Integer numeroParcelas;
 
-    @Column(precision = 8, scale = 2)
+    @Column(columnDefinition = "DOUBLE")
     private Double taxaJuros;
 
-    @Column(nullable = false, precision = 10, scale = 2)
+    @Column(nullable = false, columnDefinition = "DOUBLE")
     private Double valorParcela;
 
     @Column

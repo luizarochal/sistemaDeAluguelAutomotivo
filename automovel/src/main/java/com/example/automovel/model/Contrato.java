@@ -31,10 +31,10 @@ public class Contrato {
     @Column(nullable = false)
     private LocalDateTime dataFim;
 
-    @Column(nullable = false, precision = 10, scale = 2)
+    @Column(nullable = false, columnDefinition = "DOUBLE")
     private Double valorTotal;
 
-    @Column(nullable = false, precision = 10, scale = 2)
+    @Column(nullable = false, columnDefinition = "DOUBLE")
     private Double valorEntrada;
 
     @Column
@@ -49,7 +49,6 @@ public class Contrato {
 
     @Column(nullable = false)
     private LocalDateTime dataCriacao;
-
     public Contrato() {
         this.dataCriacao = LocalDateTime.now();
         this.status = StatusContrato.ATIVO;

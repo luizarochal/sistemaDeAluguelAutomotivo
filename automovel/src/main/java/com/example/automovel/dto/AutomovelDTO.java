@@ -1,70 +1,37 @@
-package com.example.automovel.model;
+package com.example.automovel.dto;
 
-import jakarta.persistence.*;
 import com.example.automovel.model.enums.TipoProprietario;
-import com.fasterxml.jackson.annotation.JsonProperty;
 
-@Entity
-@Table(name = "automoveis")
-public class Automovel {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-
-    private Long id;
-
-    @Column(nullable = false, unique = true)
+public class AutomovelDTO {
     private String matricula;
-
-    @Column(nullable = false)
     private Integer ano;
-
-    @Column(nullable = false)
     private String marca;
-
-    @Column(nullable = false)
     private String modelo;
-
-    @Column(nullable = false)
     private String placa;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
     private TipoProprietario proprietario;
-
-    @Column(nullable = false)
     private Boolean disponivel = true;
+    private Long empresaProprietariaId;
+    private Long bancoProprietarioId;
 
-    @ManyToOne
-    @JoinColumn(name = "empresa_proprietaria_id")
-    private Empresa empresaProprietaria;
-
-    @ManyToOne
-    @JoinColumn(name = "banco_proprietario_id")
-    private Banco bancoProprietario;
-
-    public Automovel() {
+    // Construtores
+    public AutomovelDTO() {
     }
 
-    public Automovel(String matricula, Integer ano, String marca, String modelo,
-            String placa, TipoProprietario proprietario) {
+    public AutomovelDTO(String matricula, Integer ano, String marca, String modelo,
+            String placa, TipoProprietario proprietario, Boolean disponivel,
+            Long empresaProprietariaId, Long bancoProprietarioId) {
         this.matricula = matricula;
         this.ano = ano;
         this.marca = marca;
         this.modelo = modelo;
         this.placa = placa;
         this.proprietario = proprietario;
-        this.disponivel = true;
+        this.disponivel = disponivel;
+        this.empresaProprietariaId = empresaProprietariaId;
+        this.bancoProprietarioId = bancoProprietarioId;
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
+    // Getters e Setters
     public String getMatricula() {
         return matricula;
     }
@@ -121,20 +88,19 @@ public class Automovel {
         this.disponivel = disponivel;
     }
 
-    public Empresa getEmpresaProprietaria() {
-        return empresaProprietaria;
+    public Long getEmpresaProprietariaId() {
+        return empresaProprietariaId;
     }
 
-    public void setEmpresaProprietaria(Empresa empresaProprietaria) {
-        this.empresaProprietaria = empresaProprietaria;
+    public void setEmpresaProprietariaId(Long empresaProprietariaId) {
+        this.empresaProprietariaId = empresaProprietariaId;
     }
 
-    public Banco getBancoProprietario() {
-        return bancoProprietario;
+    public Long getBancoProprietarioId() {
+        return bancoProprietarioId;
     }
 
-    public void setBancoProprietario(Banco bancoProprietario) {
-        this.bancoProprietario = bancoProprietario;
+    public void setBancoProprietarioId(Long bancoProprietarioId) {
+        this.bancoProprietarioId = bancoProprietarioId;
     }
 }
-

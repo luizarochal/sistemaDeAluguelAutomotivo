@@ -1,5 +1,14 @@
 package com.example.automovel.service;
 
+import com.example.automovel.model.*;
+import com.example.automovel.model.enums.StatusPedido;
+import com.example.automovel.repository.PedidoRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
 import com.example.automovel.dto.PedidoDTO;
 import com.example.automovel.model.Cliente;
 import com.example.automovel.model.Pedido;
@@ -21,6 +30,7 @@ public class PedidoService {
     private PedidoRepository pedidoRepository;
 
     @Autowired
+    private BancoService bancoService;
     private ClienteRepository clienteRepository;
 
     @Autowired(required = false)
@@ -34,60 +44,98 @@ public class PedidoService {
         return pedidoRepository.findById(id);
     }
 
-    public List<Pedido> listarPorClienteId(Long clienteId) {
-        Optional<Cliente> cliente = clienteRepository.findById(clienteId);
-        return cliente.map(pedidoRepository::findByCliente).orElse(List.of());
-    }
 
-    public Pedido criar(PedidoDTO dto) {
-        Cliente cliente = clienteRepository.findById(dto.getClienteId())
-                .orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado"));
-
-        Pedido pedido = new Pedido();
-        // validação básica: se existir repositório de automóvel, confirme matrícula
-        if (automovelRepository != null && !automovelRepository.existsByMatricula(dto.getMatricula())) {
-            throw new IllegalArgumentException("Automóvel (matrícula) não encontrado: " + dto.getMatricula());
-        }
-        pedido.setMatricula(dto.getMatricula());
-        pedido.setCliente(cliente);
-        pedido.setValorEstimado(dto.getValorEstimado());
-        pedido.setObservacoes(dto.getObservacoes());
-
+    public Pedido salvar(Pedido pedido) {
         return pedidoRepository.save(pedido);
     }
 
-    public Optional<Pedido> atualizar(Long id, PedidoDTO dto) {
-        return pedidoRepository.findById(id).map(existing -> {
-            if (existing.getStatus() != PedidoStatus.PENDENTE) {
-                throw new IllegalStateException("Só é possível alterar pedidos pendentes");
-            }
-            if (automovelRepository != null && !automovelRepository.existsByMatricula(dto.getMatricula())) {
-                throw new IllegalArgumentException("Automóvel (matrícula) não encontrado: " + dto.getMatricula());
-            }
-            existing.setMatricula(dto.getMatricula());
-            existing.setValorEstimado(dto.getValorEstimado());
-            existing.setObservacoes(dto.getObservacoes());
-            return pedidoRepository.save(existing);
+    public Pedido criar(Pedido pedido) {
+        pedido.setStatus(StatusPedido.PENDENTE);
+        return pedidoRepository.save(pedido);
+    }
+
+    public Optional<Pedido> atualizar(Long id, Pedido pedidoAtualizado) {
+        return pedidoRepository.findById(id).map(pedidoExistente -> {
+            pedidoExistente.setCliente(pedidoAtualizado.getCliente());
+            pedidoExistente.setAutomovel(pedidoAtualizado.getAutomovel());
+            pedidoExistente.setDataInicio(pedidoAtualizado.getDataInicio());
+            pedidoExistente.setDataFim(pedidoAtualizado.getDataFim());
+            pedidoExistente.setValorTotal(pedidoAtualizado.getValorTotal());
+            return pedidoRepository.save(pedidoExistente);
         });
     }
 
-    @Transactional
     public boolean deletar(Long id) {
-        return pedidoRepository.findById(id).map(p -> {
-            if (p.getStatus() != PedidoStatus.PENDENTE) {
-                throw new IllegalStateException("Só é possível cancelar pedidos pendentes");
-            }
-            // Deletar a entidade lida e forçar flush para garantir remoção imediata
-            pedidoRepository.delete(p);
-            pedidoRepository.flush();
+        if (pedidoRepository.existsById(id)) {
+            pedidoRepository.deleteById(id);
             return true;
-        }).orElse(false);
+        }
+        return false;
     }
 
-    public Optional<Pedido> avaliar(Long id, boolean aprovado) {
-        return pedidoRepository.findById(id).map(p -> {
-            p.setStatus(aprovado ? PedidoStatus.APROVADO : PedidoStatus.REPROVADO);
-            return pedidoRepository.save(p);
+    public Pedido criarPedido(Cliente cliente, Automovel automovel, LocalDate dataInicio, 
+                             LocalDate dataFim, Double valorDiaria) {
+        Pedido pedido = new Pedido();
+        pedido.setCliente(cliente);
+        pedido.setAutomovel(automovel);
+        pedido.setDataInicio(dataInicio);
+        pedido.setDataFim(dataFim);
+        pedido.setValorDiaria(valorDiaria);
+        pedido.setStatus(StatusPedido.PENDENTE);
+        
+        long dias = java.time.Duration.between(dataInicio, dataFim).toDays();
+        pedido.setValorTotal(dias * valorDiaria);
+        
+        return pedidoRepository.save(pedido);
+    }
+
+    public Optional<Pedido> modificarPedido(Long id, LocalDate novaDataInicio, LocalDate novaDataFim) {
+        return pedidoRepository.findById(id).map(pedido -> {
+            if (pedido.podeSerModificado()) {
+                pedido.modificarDatas(novaDataInicio, novaDataFim);
+                return pedidoRepository.save(pedido);
+            }
+            throw new IllegalStateException("Não é possível modificar um pedido com status: " + pedido.getStatus());
         });
+    }
+
+    public Optional<Pedido> cancelarPedido(Long id) {
+        return pedidoRepository.findById(id).map(pedido -> {
+            if (pedido.podeSerCancelado()) {
+                pedido.cancelar();
+                return pedidoRepository.save(pedido);
+            }
+            throw new IllegalStateException("Não é possível cancelar um pedido com status: " + pedido.getStatus());
+        });
+    }
+
+    public List<Pedido> buscarPorCliente(Long clienteId) {
+        return pedidoRepository.findByClienteId(clienteId);
+    }
+
+    public List<Pedido> buscarPorStatus(StatusPedido status) {
+        return pedidoRepository.findByStatus(status);
+    }
+
+    public Optional<Pedido> avaliarPedidoFinanceiramente(Long pedidoId, Long bancoId, String parecer, boolean aprovado) {
+        return pedidoRepository.findById(pedidoId).map(pedido -> {
+            return bancoService.buscarPorId(bancoId).map(banco -> {
+                pedido.avaliarFinanceiramente(banco, parecer, aprovado);
+                return pedidoRepository.save(pedido);
+            }).orElse(null);
+        });
+    }
+
+    public List<Pedido> listarPedidosParaAvaliacao() {
+        return pedidoRepository.findByStatus(StatusPedido.EM_ANALISE);
+    }
+
+    public List<Pedido> listarPedidosAprovados() {
+        return pedidoRepository.findByStatus(StatusPedido.APROVADO);
+    }
+
+    public List<Pedido> listarPedidosPendentes() {
+        return pedidoRepository.findByStatus(StatusPedido.PENDENTE);
     }
 }
+

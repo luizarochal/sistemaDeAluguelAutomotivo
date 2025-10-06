@@ -9,6 +9,19 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import com.example.automovel.dto.PedidoDTO;
+import com.example.automovel.model.Cliente;
+import com.example.automovel.model.Pedido;
+import com.example.automovel.model.PedidoStatus;
+import com.example.automovel.repository.ClienteRepository;
+import com.example.automovel.repository.PedidoRepository;
+import com.example.automovel.repository.AutomovelRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Optional;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class PedidoService {
@@ -18,6 +31,10 @@ public class PedidoService {
 
     @Autowired
     private BancoService bancoService;
+    private ClienteRepository clienteRepository;
+
+    @Autowired(required = false)
+    private AutomovelRepository automovelRepository;
 
     public List<Pedido> listarTodos() {
         return pedidoRepository.findAll();
@@ -26,6 +43,7 @@ public class PedidoService {
     public Optional<Pedido> buscarPorId(Long id) {
         return pedidoRepository.findById(id);
     }
+
 
     public Pedido salvar(Pedido pedido) {
         return pedidoRepository.save(pedido);
@@ -120,3 +138,4 @@ public class PedidoService {
         return pedidoRepository.findByStatus(StatusPedido.PENDENTE);
     }
 }
+

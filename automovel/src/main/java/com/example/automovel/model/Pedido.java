@@ -140,6 +140,7 @@ public class Pedido {
         adicionarHistorico("Avaliação financeira: " + acao + " por " + banco.getNome() + " - " + parecer);
     }
 
+
     public Long getId() {
         return id;
     }
@@ -147,6 +148,7 @@ public class Pedido {
     public void setId(Long id) {
         this.id = id;
     }
+
 
     public Cliente getCliente() {
         return cliente;
@@ -286,5 +288,6 @@ public class Pedido {
                 ", status=" + status +
                 ", valorTotal=" + valorTotal +
                 '}';
+
     }
 }

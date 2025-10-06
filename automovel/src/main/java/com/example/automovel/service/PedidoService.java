@@ -55,8 +55,8 @@ public class PedidoService {
         return false;
     }
 
-    public Pedido criarPedido(Cliente cliente, Automovel automovel, LocalDate dataInicio, 
-                             LocalDate dataFim, Double valorDiaria) {
+    public Pedido criarPedido(Cliente cliente, Automovel automovel, LocalDate dataInicio,
+            LocalDate dataFim, Double valorDiaria) {
         Pedido pedido = new Pedido();
         pedido.setCliente(cliente);
         pedido.setAutomovel(automovel);
@@ -64,10 +64,10 @@ public class PedidoService {
         pedido.setDataFim(dataFim);
         pedido.setValorDiaria(valorDiaria);
         pedido.setStatus(StatusPedido.PENDENTE);
-        
-        long dias = java.time.Duration.between(dataInicio, dataFim).toDays();
+
+        long dias = calcularDiasEntreDatas(dataInicio, dataFim);
         pedido.setValorTotal(dias * valorDiaria);
-        
+
         return pedidoRepository.save(pedido);
     }
 
@@ -99,7 +99,8 @@ public class PedidoService {
         return pedidoRepository.findByStatus(status);
     }
 
-    public Optional<Pedido> avaliarPedidoFinanceiramente(Long pedidoId, Long bancoId, String parecer, boolean aprovado) {
+    public Optional<Pedido> avaliarPedidoFinanceiramente(Long pedidoId, Long bancoId, String parecer,
+            boolean aprovado) {
         return pedidoRepository.findById(pedidoId).map(pedido -> {
             return bancoService.buscarPorId(bancoId).map(banco -> {
                 pedido.avaliarFinanceiramente(banco, parecer, aprovado);
@@ -118,5 +119,9 @@ public class PedidoService {
 
     public List<Pedido> listarPedidosPendentes() {
         return pedidoRepository.findByStatus(StatusPedido.PENDENTE);
+    }
+
+    public long calcularDiasEntreDatas(LocalDate dataInicio, LocalDate dataFim) {
+        return java.time.temporal.ChronoUnit.DAYS.between(dataInicio, dataFim);
     }
 }

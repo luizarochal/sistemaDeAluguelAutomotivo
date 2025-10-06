@@ -83,7 +83,8 @@ public class Pedido {
 
     private void calcularValorTotal() {
         if (dataInicio != null && dataFim != null && valorDiaria != null) {
-            long dias = java.time.Duration.between(dataInicio, dataFim).toDays();
+            // CORREÇÃO: Usar ChronoUnit.DAYS.between() em vez de Duration.between()
+            long dias = java.time.temporal.ChronoUnit.DAYS.between(dataInicio, dataFim);
             this.valorTotal = dias * valorDiaria;
         }
     }

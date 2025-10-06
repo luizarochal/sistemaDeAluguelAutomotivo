@@ -1,10 +1,11 @@
 package com.example.automovel.controller;
 
-import com.example.automovel.dto.EstatisticasContratosDTO;
+import com.example.automovel.dto.*;
 import com.example.automovel.model.Contrato;
 import com.example.automovel.model.ContratoCredito;
 import com.example.automovel.model.enums.StatusContratoCredito;
 import com.example.automovel.service.ContratoService;
+import com.example.automovel.service.ContratoMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/contratos")
@@ -26,6 +28,9 @@ public class ContratoController {
     @Autowired
     private ContratoService contratoService;
 
+    @Autowired
+    private ContratoMapper contratoMapper;
+
     @PostMapping("/normal/{pedidoId}")
     @Operation(summary = "Criar contrato normal", description = "Cria um contrato normal a partir de um pedido aprovado")
     @ApiResponses({
@@ -33,14 +38,15 @@ public class ContratoController {
             @ApiResponse(responseCode = "404", description = "Pedido não encontrado"),
             @ApiResponse(responseCode = "400", description = "Não é possível criar contrato")
     })
-    public ResponseEntity<Contrato> criarContratoNormal(
+    public ResponseEntity<ContratoDTO> criarContratoNormal(
             @Parameter(description = "ID do pedido", required = true) @PathVariable Long pedidoId,
             @Parameter(description = "Valor da entrada", required = true) @RequestParam Double valorEntrada,
             @Parameter(description = "Forma de pagamento", required = true) @RequestParam String formaPagamento,
             @Parameter(description = "Dia de vencimento", required = false) @RequestParam(required = false) Integer diaVencimento) {
         try {
-            Optional<Contrato> contrato = contratoService.criarContratoNormal(pedidoId, valorEntrada, formaPagamento, diaVencimento);
-            return contrato.map(ResponseEntity::ok)
+            Optional<Contrato> contrato = contratoService.criarContratoNormal(pedidoId, valorEntrada, formaPagamento,
+                    diaVencimento);
+            return contrato.map(c -> ResponseEntity.ok(contratoMapper.toDTO(c)))
                     .orElse(ResponseEntity.notFound().build());
         } catch (IllegalArgumentException | IllegalStateException e) {
             return ResponseEntity.badRequest().body(null);
@@ -54,7 +60,7 @@ public class ContratoController {
             @ApiResponse(responseCode = "404", description = "Pedido ou banco não encontrado"),
             @ApiResponse(responseCode = "400", description = "Não é possível criar contrato de crédito")
     })
-    public ResponseEntity<ContratoCredito> criarContratoCredito(
+    public ResponseEntity<ContratoCreditoDTO> criarContratoCredito(
             @Parameter(description = "ID do pedido", required = true) @PathVariable Long pedidoId,
             @Parameter(description = "ID do banco", required = true) @RequestParam Long bancoId,
             @Parameter(description = "Valor da entrada", required = true) @RequestParam Double valorEntrada,
@@ -68,7 +74,7 @@ public class ContratoController {
             Optional<ContratoCredito> contrato = contratoService.criarContratoCredito(
                     pedidoId, bancoId, valorEntrada, formaPagamento, diaVencimento,
                     valorFinanciado, numeroParcelas, taxaJuros, dataPrimeiroVencimento);
-            return contrato.map(ResponseEntity::ok)
+            return contrato.map(c -> ResponseEntity.ok(contratoMapper.toCreditoDTO(c)))
                     .orElse(ResponseEntity.notFound().build());
         } catch (IllegalArgumentException | IllegalStateException e) {
             return ResponseEntity.badRequest().body(null);
@@ -78,9 +84,12 @@ public class ContratoController {
     @GetMapping
     @Operation(summary = "Listar todos os contratos", description = "Retorna uma lista com todos os contratos")
     @ApiResponse(responseCode = "200", description = "Lista de contratos retornada com sucesso")
-    public ResponseEntity<List<Contrato>> listarTodos() {
+    public ResponseEntity<List<ContratoDTO>> listarTodos() {
         List<Contrato> contratos = contratoService.listarTodosContratos();
-        return ResponseEntity.ok(contratos);
+        List<ContratoDTO> contratosDTO = contratos.stream()
+                .map(contratoMapper::toDTO)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(contratosDTO);
     }
 
     @GetMapping("/{id}")
@@ -89,37 +98,46 @@ public class ContratoController {
             @ApiResponse(responseCode = "200", description = "Contrato encontrado"),
             @ApiResponse(responseCode = "404", description = "Contrato não encontrado")
     })
-    public ResponseEntity<Contrato> buscarPorId(
+    public ResponseEntity<ContratoDTO> buscarPorId(
             @Parameter(description = "ID do contrato", required = true) @PathVariable Long id) {
         Optional<Contrato> contrato = contratoService.buscarContratoPorId(id);
-        return contrato.map(ResponseEntity::ok)
+        return contrato.map(c -> ResponseEntity.ok(contratoMapper.toDTO(c)))
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping("/cliente/{clienteId}")
     @Operation(summary = "Listar contratos por cliente", description = "Retorna contratos de um cliente específico")
     @ApiResponse(responseCode = "200", description = "Lista de contratos retornada com sucesso")
-    public ResponseEntity<List<Contrato>> listarPorCliente(
+    public ResponseEntity<List<ContratoDTO>> listarPorCliente(
             @Parameter(description = "ID do cliente", required = true) @PathVariable Long clienteId) {
         List<Contrato> contratos = contratoService.listarContratosPorCliente(clienteId);
-        return ResponseEntity.ok(contratos);
+        List<ContratoDTO> contratosDTO = contratos.stream()
+                .map(contratoMapper::toDTO)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(contratosDTO);
     }
 
     @GetMapping("/credito")
     @Operation(summary = "Listar contratos de crédito", description = "Retorna todos os contratos de crédito")
     @ApiResponse(responseCode = "200", description = "Lista de contratos de crédito retornada com sucesso")
-    public ResponseEntity<List<ContratoCredito>> listarContratosCredito() {
+    public ResponseEntity<List<ContratoCreditoDTO>> listarContratosCredito() {
         List<ContratoCredito> contratos = contratoService.listarTodosContratosCredito();
-        return ResponseEntity.ok(contratos);
+        List<ContratoCreditoDTO> contratosDTO = contratos.stream()
+                .map(contratoMapper::toCreditoDTO)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(contratosDTO);
     }
 
     @GetMapping("/credito/banco/{bancoId}")
     @Operation(summary = "Listar contratos de crédito por banco", description = "Retorna contratos de crédito de um banco específico")
     @ApiResponse(responseCode = "200", description = "Lista de contratos de crédito retornada com sucesso")
-    public ResponseEntity<List<ContratoCredito>> listarContratosCreditoPorBanco(
+    public ResponseEntity<List<ContratoCreditoDTO>> listarContratosCreditoPorBanco(
             @Parameter(description = "ID do banco", required = true) @PathVariable Long bancoId) {
         List<ContratoCredito> contratos = contratoService.listarContratosCreditoPorBanco(bancoId);
-        return ResponseEntity.ok(contratos);
+        List<ContratoCreditoDTO> contratosDTO = contratos.stream()
+                .map(contratoMapper::toCreditoDTO)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(contratosDTO);
     }
 
     @PutMapping("/{id}/finalizar")
@@ -128,10 +146,10 @@ public class ContratoController {
             @ApiResponse(responseCode = "200", description = "Contrato finalizado com sucesso"),
             @ApiResponse(responseCode = "404", description = "Contrato não encontrado")
     })
-    public ResponseEntity<Contrato> finalizarContrato(
+    public ResponseEntity<ContratoDTO> finalizarContrato(
             @Parameter(description = "ID do contrato", required = true) @PathVariable Long id) {
         Optional<Contrato> contrato = contratoService.finalizarContrato(id);
-        return contrato.map(ResponseEntity::ok)
+        return contrato.map(c -> ResponseEntity.ok(contratoMapper.toDTO(c)))
                 .orElse(ResponseEntity.notFound().build());
     }
 
@@ -141,11 +159,11 @@ public class ContratoController {
             @ApiResponse(responseCode = "200", description = "Status atualizado com sucesso"),
             @ApiResponse(responseCode = "404", description = "Contrato não encontrado")
     })
-    public ResponseEntity<ContratoCredito> atualizarStatusContratoCredito(
+    public ResponseEntity<ContratoCreditoDTO> atualizarStatusContratoCredito(
             @Parameter(description = "ID do contrato", required = true) @PathVariable Long id,
             @Parameter(description = "Novo status", required = true) @RequestParam StatusContratoCredito novoStatus) {
         Optional<ContratoCredito> contrato = contratoService.atualizarStatusContratoCredito(id, novoStatus);
-        return contrato.map(ResponseEntity::ok)
+        return contrato.map(c -> ResponseEntity.ok(contratoMapper.toCreditoDTO(c)))
                 .orElse(ResponseEntity.notFound().build());
     }
 

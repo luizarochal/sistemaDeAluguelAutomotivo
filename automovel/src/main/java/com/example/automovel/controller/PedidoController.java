@@ -34,22 +34,24 @@ public class PedidoController {
 
     @PostMapping
     @Operation(summary = "Criar pedido")
-    public ResponseEntity<Pedido> criar(@Valid @RequestBody PedidoDTO dto) {
+    public ResponseEntity<?> criar(@Valid @RequestBody PedidoDTO dto) {
         try {
             Pedido p = pedidoService.criar(dto);
-            return ResponseEntity.ok(p);
+            return ResponseEntity.status(201).body(p);
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
     @PutMapping("/{id}")
     @Operation(summary = "Atualizar pedido")
-    public ResponseEntity<Pedido> atualizar(@PathVariable Long id, @Valid @RequestBody PedidoDTO dto) {
+    public ResponseEntity<?> atualizar(@PathVariable Long id, @Valid @RequestBody PedidoDTO dto) {
         try {
-            return pedidoService.atualizar(id, dto).map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
-        } catch (IllegalStateException e) {
-            return ResponseEntity.badRequest().build();
+            return pedidoService.atualizar(id, dto)
+                    .map(ResponseEntity::ok)
+                    .orElse(ResponseEntity.notFound().build());
+        } catch (IllegalStateException | IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
@@ -58,7 +60,7 @@ public class PedidoController {
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
         try {
             boolean ok = pedidoService.deletar(id);
-            return ok ? ResponseEntity.ok().build() : ResponseEntity.notFound().build();
+            return ok ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
         } catch (IllegalStateException e) {
             return ResponseEntity.badRequest().build();
         }

@@ -6,7 +6,7 @@ import java.util.Objects;
 public class PedidoDTO {
 
     @NotNull
-    private Long automovelId;
+    private String matricula;
 
     @NotNull
     private Long clienteId;
@@ -16,12 +16,12 @@ public class PedidoDTO {
     @Size(max = 1000)
     private String observacoes;
 
-    public Long getAutomovelId() {
-        return automovelId;
+    public String getMatricula() {
+        return matricula;
     }
 
-    public void setAutomovelId(Long automovelId) {
-        this.automovelId = automovelId;
+    public void setMatricula(String matricula) {
+        this.matricula = matricula;
     }
 
     public Long getClienteId() {
@@ -53,11 +53,11 @@ public class PedidoDTO {
         if (this == o) return true;
         if (!(o instanceof PedidoDTO)) return false;
         PedidoDTO pedidoDTO = (PedidoDTO) o;
-        return Objects.equals(automovelId, pedidoDTO.automovelId) && Objects.equals(clienteId, pedidoDTO.clienteId);
+        return Objects.equals(matricula, pedidoDTO.matricula) && Objects.equals(clienteId, pedidoDTO.clienteId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(automovelId, clienteId);
+        return Objects.hash(matricula, clienteId);
     }
 }

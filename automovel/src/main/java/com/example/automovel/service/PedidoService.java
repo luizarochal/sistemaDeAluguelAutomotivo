@@ -6,11 +6,13 @@ import com.example.automovel.model.Pedido;
 import com.example.automovel.model.PedidoStatus;
 import com.example.automovel.repository.ClienteRepository;
 import com.example.automovel.repository.PedidoRepository;
+import com.example.automovel.repository.AutomovelRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class PedidoService {
@@ -20,6 +22,9 @@ public class PedidoService {
 
     @Autowired
     private ClienteRepository clienteRepository;
+
+    @Autowired(required = false)
+    private AutomovelRepository automovelRepository;
 
     public List<Pedido> listarTodos() {
         return pedidoRepository.findAll();
@@ -39,7 +44,11 @@ public class PedidoService {
                 .orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado"));
 
         Pedido pedido = new Pedido();
-        pedido.setAutomovelId(dto.getAutomovelId());
+        // validação básica: se existir repositório de automóvel, confirme matrícula
+        if (automovelRepository != null && !automovelRepository.existsByMatricula(dto.getMatricula())) {
+            throw new IllegalArgumentException("Automóvel (matrícula) não encontrado: " + dto.getMatricula());
+        }
+        pedido.setMatricula(dto.getMatricula());
         pedido.setCliente(cliente);
         pedido.setValorEstimado(dto.getValorEstimado());
         pedido.setObservacoes(dto.getObservacoes());
@@ -52,19 +61,25 @@ public class PedidoService {
             if (existing.getStatus() != PedidoStatus.PENDENTE) {
                 throw new IllegalStateException("Só é possível alterar pedidos pendentes");
             }
-            existing.setAutomovelId(dto.getAutomovelId());
+            if (automovelRepository != null && !automovelRepository.existsByMatricula(dto.getMatricula())) {
+                throw new IllegalArgumentException("Automóvel (matrícula) não encontrado: " + dto.getMatricula());
+            }
+            existing.setMatricula(dto.getMatricula());
             existing.setValorEstimado(dto.getValorEstimado());
             existing.setObservacoes(dto.getObservacoes());
             return pedidoRepository.save(existing);
         });
     }
 
+    @Transactional
     public boolean deletar(Long id) {
         return pedidoRepository.findById(id).map(p -> {
             if (p.getStatus() != PedidoStatus.PENDENTE) {
                 throw new IllegalStateException("Só é possível cancelar pedidos pendentes");
             }
-            pedidoRepository.deleteById(id);
+            // Deletar a entidade lida e forçar flush para garantir remoção imediata
+            pedidoRepository.delete(p);
+            pedidoRepository.flush();
             return true;
         }).orElse(false);
     }

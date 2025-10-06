@@ -16,8 +16,9 @@ public class Pedido {
     @Enumerated(EnumType.STRING)
     private PedidoStatus status = PedidoStatus.PENDENTE;
 
-    // Referência ao automóvel; a entidade Automovel não existe no módulo principal, usamos id
-    private Long automovelId;
+    // Referência ao automóvel pelo seu número de matrícula (conforme enunciado)
+    @Column(name = "automovel_matricula", length = 100)
+    private String matricula;
 
     @ManyToOne
     @JoinColumn(name = "cliente_id")
@@ -59,12 +60,12 @@ public class Pedido {
         this.status = status;
     }
 
-    public Long getAutomovelId() {
-        return automovelId;
+    public String getMatricula() {
+        return matricula;
     }
 
-    public void setAutomovelId(Long automovelId) {
-        this.automovelId = automovelId;
+    public void setMatricula(String matricula) {
+        this.matricula = matricula;
     }
 
     public Cliente getCliente() {

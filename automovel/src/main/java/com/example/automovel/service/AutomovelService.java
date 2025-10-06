@@ -5,7 +5,6 @@ import com.example.automovel.model.Automovel;
 import com.example.automovel.model.Banco;
 import com.example.automovel.model.Empresa;
 import com.example.automovel.model.enums.TipoProprietario;
-import com.example.automovel.model.Automovel;
 import com.example.automovel.repository.AutomovelRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

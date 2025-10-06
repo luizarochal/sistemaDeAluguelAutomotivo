@@ -2,7 +2,6 @@ package com.example.automovel.model;
 
 import jakarta.persistence.*;
 import com.example.automovel.model.enums.TipoProprietario;
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Entity
 @Table(name = "automoveis")

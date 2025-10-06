@@ -1,5 +1,6 @@
 package com.example.automovel.controller;
 
+
 import com.example.automovel.dto.AutomovelDTO;
 import com.example.automovel.model.Automovel;
 import com.example.automovel.model.enums.TipoProprietario;
@@ -9,12 +10,16 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import com.example.automovel.model.Automovel;
+import com.example.automovel.service.AutomovelService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import java.util.Optional;
+
 
 @RestController
 @RequestMapping("/api/automoveis")
@@ -25,6 +30,7 @@ public class AutomovelController {
     private AutomovelService automovelService;
 
     @GetMapping
+
     @Operation(summary = "Listar todos os automóveis", description = "Retorna uma lista com todos os automóveis cadastrados")
     @ApiResponse(responseCode = "200", description = "Lista de automóveis retornada com sucesso")
     public ResponseEntity<List<Automovel>> listarTodos() {
@@ -87,6 +93,7 @@ public class AutomovelController {
     }
 
     @PutMapping("/{id}")
+
     @Operation(summary = "Atualizar automóvel", description = "Atualiza os dados de um automóvel existente")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Automóvel atualizado com sucesso"),

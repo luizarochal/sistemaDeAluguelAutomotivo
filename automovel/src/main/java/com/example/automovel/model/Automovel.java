@@ -2,6 +2,7 @@ package com.example.automovel.model;
 
 import jakarta.persistence.*;
 import com.example.automovel.model.enums.TipoProprietario;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Entity
 @Table(name = "automoveis")
@@ -9,6 +10,7 @@ public class Automovel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+
     private Long id;
 
     @Column(nullable = false, unique = true)
@@ -135,3 +137,4 @@ public class Automovel {
         this.bancoProprietario = bancoProprietario;
     }
 }
+

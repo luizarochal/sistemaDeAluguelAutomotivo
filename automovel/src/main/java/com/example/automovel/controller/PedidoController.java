@@ -14,6 +14,10 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import com.example.automovel.dto.PedidoDTO;
+import com.example.automovel.model.Pedido;
+import com.example.automovel.service.PedidoService;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +27,8 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import jakarta.validation.Valid;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/pedidos")
@@ -124,6 +130,7 @@ public class PedidoController {
             Optional<Pedido> pedidoCancelado = pedidoService.cancelarPedido(id);
             return pedidoCancelado.map(p -> ResponseEntity.ok(pedidoMapper.toDTO(p)))
                     .orElse(ResponseEntity.notFound().build());
+
         } catch (IllegalStateException e) {
             return ResponseEntity.badRequest().build();
         }
@@ -228,3 +235,4 @@ public class PedidoController {
         return ResponseEntity.ok(pedidosDTO);
     }
 }
+

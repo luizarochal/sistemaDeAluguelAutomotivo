@@ -1,6 +1,7 @@
 package com.example.automovel.model;
 
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Entity
 @Table(name = "automoveis")
@@ -8,6 +9,7 @@ public class Automovel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Long id;
 
     @Column(unique = true, nullable = false, length = 100)

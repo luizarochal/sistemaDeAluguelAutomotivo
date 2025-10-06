@@ -1,7 +1,11 @@
 package com.example.automovel.controller;
 
 import com.example.automovel.model.Banco;
+import com.example.automovel.model.Pedido;
+import com.example.automovel.model.ContratoCredito;
 import com.example.automovel.dto.BancoDTO;
+import com.example.automovel.dto.EstatisticasBancoDTO;
+import com.example.automovel.dto.AvaliacaoFinanceiraDTO;
 import com.example.automovel.service.BancoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -103,5 +107,77 @@ public class BancoController {
             @Parameter(description = "ID do banco a ser deletado", required = true, example = "1") @PathVariable Long id) {
         boolean deletado = bancoService.deletar(id);
         return deletado ? ResponseEntity.ok().build() : ResponseEntity.notFound().build();
+    }
+
+    @PostMapping("/{bancoId}/avaliar-pedido/{pedidoId}")
+    @Operation(summary = "Avaliar pedido financeiramente", description = "Banco avalia um pedido do ponto de vista financeiro")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Pedido avaliado com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Banco ou pedido não encontrado"),
+            @ApiResponse(responseCode = "400", description = "Dados inválidos fornecidos")
+    })
+    public ResponseEntity<Pedido> avaliarPedido(
+            @Parameter(description = "ID do banco", required = true) @PathVariable Long bancoId,
+            @Parameter(description = "ID do pedido", required = true) @PathVariable Long pedidoId,
+            @Parameter(description = "Dados da avaliação", required = true) @Valid @RequestBody AvaliacaoFinanceiraDTO avaliacaoDTO) {
+        try {
+            avaliacaoDTO.setBancoId(bancoId);
+            Optional<Pedido> pedidoAvaliado = bancoService.avaliarPedido(pedidoId, avaliacaoDTO);
+            return pedidoAvaliado.map(ResponseEntity::ok)
+                    .orElse(ResponseEntity.notFound().build());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @GetMapping("/{id}/pedidos-para-avaliacao")
+    @Operation(summary = "Listar pedidos para avaliação", description = "Retorna pedidos pendentes de avaliação financeira")
+    @ApiResponse(responseCode = "200", description = "Lista de pedidos retornada com sucesso")
+    public ResponseEntity<List<Pedido>> listarPedidosParaAvaliacao(
+            @Parameter(description = "ID do banco", required = true) @PathVariable Long id) {
+        List<Pedido> pedidos = bancoService.listarPedidosParaAvaliacao();
+        return ResponseEntity.ok(pedidos);
+    }
+
+    @GetMapping("/{id}/pedidos-avaliados")
+    @Operation(summary = "Listar pedidos avaliados", description = "Retorna pedidos já avaliados por este banco")
+    @ApiResponse(responseCode = "200", description = "Lista de pedidos retornada com sucesso")
+    public ResponseEntity<List<Pedido>> listarPedidosAvaliados(
+            @Parameter(description = "ID do banco", required = true) @PathVariable Long id) {
+        List<Pedido> pedidos = bancoService.listarPedidosAvaliados(id);
+        return ResponseEntity.ok(pedidos);
+    }
+
+    @GetMapping("/{id}/contratos-credito")
+    @Operation(summary = "Listar contratos de crédito", description = "Retorna contratos de crédito concedidos pelo banco")
+    @ApiResponse(responseCode = "200", description = "Lista de contratos retornada com sucesso")
+    public ResponseEntity<List<ContratoCredito>> listarContratosCredito(
+            @Parameter(description = "ID do banco", required = true) @PathVariable Long id) {
+        List<ContratoCredito> contratos = bancoService.listarContratosCredito(id);
+        return ResponseEntity.ok(contratos);
+    }
+
+    @GetMapping("/{id}/estatisticas")
+    @Operation(summary = "Obter estatísticas do banco", description = "Retorna estatísticas financeiras do banco")
+    @ApiResponse(responseCode = "200", description = "Estatísticas retornadas com sucesso")
+    public ResponseEntity<EstatisticasBancoDTO> obterEstatisticas(
+            @Parameter(description = "ID do banco", required = true) @PathVariable Long id) {
+        EstatisticasBancoDTO estatisticas = bancoService.obterEstatisticas(id);
+        return ResponseEntity.ok(estatisticas);
+    }
+
+    @PutMapping("/{bancoId}/modificar-avaliacao/{pedidoId}")
+    @Operation(summary = "Modificar avaliação de pedido", description = "Banco modifica a avaliação de um pedido")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Avaliação modificada com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Banco ou pedido não encontrado")
+    })
+    public ResponseEntity<Pedido> modificarAvaliacao(
+            @Parameter(description = "ID do banco", required = true) @PathVariable Long bancoId,
+            @Parameter(description = "ID do pedido", required = true) @PathVariable Long pedidoId,
+            @Parameter(description = "Novo parecer", required = true) @RequestParam String novoParecer) {
+        Optional<Pedido> pedidoModificado = bancoService.modificarAvaliacaoPedido(pedidoId, bancoId, novoParecer);
+        return pedidoModificado.map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 }

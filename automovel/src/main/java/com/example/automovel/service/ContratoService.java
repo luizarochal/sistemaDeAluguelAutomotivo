@@ -11,7 +11,7 @@ import com.example.automovel.repository.PedidoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -109,7 +109,7 @@ public class ContratoService {
                                                          Double valorEntrada, String formaPagamento, 
                                                          Integer diaVencimento, Double valorFinanciado, 
                                                          Integer numeroParcelas, Double taxaJuros, 
-                                                         LocalDateTime dataPrimeiroVencimento) {
+                                                         LocalDate dataPrimeiroVencimento) {
         return pedidoRepository.findById(pedidoId).map(pedido -> {
             if (pedido.getStatus() == StatusPedido.APROVADO) {
                 return bancoService.buscarPorId(bancoId).map(banco -> {

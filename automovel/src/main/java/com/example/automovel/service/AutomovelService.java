@@ -1,6 +1,9 @@
 package com.example.automovel.service;
 
+import com.example.automovel.dto.AutomovelDTO;
 import com.example.automovel.model.Automovel;
+import com.example.automovel.model.Banco;
+import com.example.automovel.model.Empresa;
 import com.example.automovel.model.enums.TipoProprietario;
 import com.example.automovel.repository.AutomovelRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +17,12 @@ public class AutomovelService {
 
     @Autowired
     private AutomovelRepository automovelRepository;
+
+    @Autowired
+    private EmpresaService empresaService;
+
+    @Autowired
+    private BancoService bancoService;
 
     // Métodos CRUD básicos
     public List<Automovel> listarTodos() {
@@ -119,8 +128,49 @@ public class AutomovelService {
             throw new IllegalArgumentException("Já existe um automóvel com esta placa: " + automovel.getPlaca());
         }
         if (existeMatricula(automovel.getMatricula())) {
-            throw new IllegalArgumentException("Já existe um automóvel com esta matrícula: " + automovel.getMatricula());
+            throw new IllegalArgumentException(
+                    "Já existe um automóvel com esta matrícula: " + automovel.getMatricula());
         }
+        return automovelRepository.save(automovel);
+    }
+
+    public Automovel criarComDTO(AutomovelDTO automovelDTO) {
+        // Validações básicas
+        if (existePlaca(automovelDTO.getPlaca())) {
+            throw new IllegalArgumentException("Já existe um automóvel com esta placa: " + automovelDTO.getPlaca());
+        }
+        if (existeMatricula(automovelDTO.getMatricula())) {
+            throw new IllegalArgumentException(
+                    "Já existe um automóvel com esta matrícula: " + automovelDTO.getMatricula());
+        }
+
+        // Criar o automóvel
+        Automovel automovel = new Automovel();
+        automovel.setMatricula(automovelDTO.getMatricula());
+        automovel.setAno(automovelDTO.getAno());
+        automovel.setMarca(automovelDTO.getMarca());
+        automovel.setModelo(automovelDTO.getModelo());
+        automovel.setPlaca(automovelDTO.getPlaca());
+        automovel.setProprietario(automovelDTO.getProprietario());
+        automovel.setDisponivel(automovelDTO.getDisponivel() != null ? automovelDTO.getDisponivel() : true);
+
+        // Definir proprietário baseado no tipo
+        if (automovelDTO.getProprietario() == TipoProprietario.EMPRESA
+                && automovelDTO.getEmpresaProprietariaId() != null) {
+            // Buscar empresa no banco de dados
+            Empresa empresa = empresaService.buscarPorId(automovelDTO.getEmpresaProprietariaId())
+                    .orElseThrow(() -> new IllegalArgumentException(
+                            "Empresa não encontrada com ID: " + automovelDTO.getEmpresaProprietariaId()));
+            automovel.setEmpresaProprietaria(empresa);
+        } else if (automovelDTO.getProprietario() == TipoProprietario.BANCO
+                && automovelDTO.getBancoProprietarioId() != null) {
+            // Buscar banco no banco de dados
+            Banco banco = bancoService.buscarPorId(automovelDTO.getBancoProprietarioId())
+                    .orElseThrow(() -> new IllegalArgumentException(
+                            "Banco não encontrado com ID: " + automovelDTO.getBancoProprietarioId()));
+            automovel.setBancoProprietario(banco);
+        }
+
         return automovelRepository.save(automovel);
     }
 }

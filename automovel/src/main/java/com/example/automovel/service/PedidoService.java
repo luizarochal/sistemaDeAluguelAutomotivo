@@ -6,7 +6,7 @@ import com.example.automovel.repository.PedidoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -55,8 +55,8 @@ public class PedidoService {
         return false;
     }
 
-    public Pedido criarPedido(Cliente cliente, Automovel automovel, LocalDateTime dataInicio, 
-                             LocalDateTime dataFim, Double valorDiaria) {
+    public Pedido criarPedido(Cliente cliente, Automovel automovel, LocalDate dataInicio, 
+                             LocalDate dataFim, Double valorDiaria) {
         Pedido pedido = new Pedido();
         pedido.setCliente(cliente);
         pedido.setAutomovel(automovel);
@@ -71,7 +71,7 @@ public class PedidoService {
         return pedidoRepository.save(pedido);
     }
 
-    public Optional<Pedido> modificarPedido(Long id, LocalDateTime novaDataInicio, LocalDateTime novaDataFim) {
+    public Optional<Pedido> modificarPedido(Long id, LocalDate novaDataInicio, LocalDate novaDataFim) {
         return pedidoRepository.findById(id).map(pedido -> {
             if (pedido.podeSerModificado()) {
                 pedido.modificarDatas(novaDataInicio, novaDataFim);

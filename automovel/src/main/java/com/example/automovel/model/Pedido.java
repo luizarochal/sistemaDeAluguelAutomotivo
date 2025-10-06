@@ -2,6 +2,7 @@ package com.example.automovel.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,13 +25,13 @@ public class Pedido {
     private Automovel automovel;
 
     @Column(nullable = false)
-    private LocalDateTime dataPedido;
+    private LocalDate dataPedido;
 
     @Column(nullable = false)
-    private LocalDateTime dataInicio;
+    private LocalDate dataInicio;
 
     @Column(nullable = false)
-    private LocalDateTime dataFim;
+    private LocalDate dataFim;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -63,13 +64,13 @@ public class Pedido {
     private Contrato contrato;
 
     public Pedido() {
-        this.dataPedido = LocalDateTime.now();
+        this.dataPedido = LocalDate.now();
         this.status = StatusPedido.PENDENTE;
         this.historicoAlteracoes = new ArrayList<>();
         adicionarHistorico("Pedido criado em " + this.dataPedido);
     }
 
-    public Pedido(Cliente cliente, Automovel automovel, LocalDateTime dataInicio, LocalDateTime dataFim,
+    public Pedido(Cliente cliente, Automovel automovel, LocalDate dataInicio, LocalDate dataFim,
             Double valorDiaria) {
         this();
         this.cliente = cliente;
@@ -94,7 +95,7 @@ public class Pedido {
         this.historicoAlteracoes.add(LocalDateTime.now() + " - " + mensagem);
     }
 
-    public void modificarDatas(LocalDateTime novaDataInicio, LocalDateTime novaDataFim) {
+    public void modificarDatas(LocalDate novaDataInicio, LocalDate novaDataFim) {
         if (this.status == StatusPedido.PENDENTE || this.status == StatusPedido.EM_ANALISE) {
             String historico = String.format("Datas modificadas: %s até %s → %s até %s",
                     this.dataInicio, this.dataFim, novaDataInicio, novaDataFim);
@@ -165,28 +166,28 @@ public class Pedido {
         adicionarHistorico("Automóvel definido: " + automovel.getMarca() + " " + automovel.getModelo());
     }
 
-    public LocalDateTime getDataPedido() {
+    public LocalDate getDataPedido() {
         return dataPedido;
     }
 
-    public void setDataPedido(LocalDateTime dataPedido) {
+    public void setDataPedido(LocalDate dataPedido) {
         this.dataPedido = dataPedido;
     }
 
-    public LocalDateTime getDataInicio() {
+    public LocalDate getDataInicio() {
         return dataInicio;
     }
 
-    public void setDataInicio(LocalDateTime dataInicio) {
+    public void setDataInicio(LocalDate dataInicio) {
         this.dataInicio = dataInicio;
         calcularValorTotal();
     }
 
-    public LocalDateTime getDataFim() {
+    public LocalDate getDataFim() {
         return dataFim;
     }
 
-    public void setDataFim(LocalDateTime dataFim) {
+    public void setDataFim(LocalDate dataFim) {
         this.dataFim = dataFim;
         calcularValorTotal();
     }

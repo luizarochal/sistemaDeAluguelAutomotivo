@@ -16,7 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -64,8 +64,8 @@ public class PedidoController {
     public ResponseEntity<Pedido> criarPedido(
             @Parameter(description = "ID do cliente", required = true) @RequestParam Long clienteId,
             @Parameter(description = "ID do automóvel", required = true) @RequestParam Long automovelId,
-            @Parameter(description = "Data de início", required = true) @RequestParam LocalDateTime dataInicio,
-            @Parameter(description = "Data de fim", required = true) @RequestParam LocalDateTime dataFim,
+            @Parameter(description = "Data de início", required = true) @RequestParam LocalDate dataInicio,
+            @Parameter(description = "Data de fim", required = true) @RequestParam LocalDate dataFim,
             @Parameter(description = "Valor da diária", required = true) @RequestParam Double valorDiaria) {
         try {
             Optional<Cliente> cliente = clienteService.buscarPorId(clienteId);
@@ -90,8 +90,8 @@ public class PedidoController {
     })
     public ResponseEntity<Pedido> modificarPedido(
             @Parameter(description = "ID do pedido", required = true) @PathVariable Long id,
-            @Parameter(description = "Nova data de início", required = true) @RequestParam LocalDateTime novaDataInicio,
-            @Parameter(description = "Nova data de fim", required = true) @RequestParam LocalDateTime novaDataFim) {
+            @Parameter(description = "Nova data de início", required = true) @RequestParam LocalDate novaDataInicio,
+            @Parameter(description = "Nova data de fim", required = true) @RequestParam LocalDate novaDataFim) {
         try {
             Optional<Pedido> pedidoModificado = pedidoService.modificarPedido(id, novaDataInicio, novaDataFim);
             return pedidoModificado.map(ResponseEntity::ok)

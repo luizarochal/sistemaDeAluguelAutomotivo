@@ -1,7 +1,7 @@
 package com.example.automovel.model;
 
 import jakarta.persistence.*;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import com.example.automovel.model.enums.StatusContrato;
 
 @Entity
@@ -26,10 +26,10 @@ public class Contrato {
     private Automovel automovel;
 
     @Column(nullable = false)
-    private LocalDateTime dataInicio;
+    private LocalDate dataInicio;
 
     @Column(nullable = false)
-    private LocalDateTime dataFim;
+    private LocalDate dataFim;
 
     @Column(nullable = false, columnDefinition = "DOUBLE")
     private Double valorTotal;
@@ -48,14 +48,14 @@ public class Contrato {
     private StatusContrato status;
 
     @Column(nullable = false)
-    private LocalDateTime dataCriacao;
+    private LocalDate dataCriacao;
     public Contrato() {
-        this.dataCriacao = LocalDateTime.now();
+        this.dataCriacao = LocalDate.now();
         this.status = StatusContrato.ATIVO;
     }
 
     public Contrato(Pedido pedido, Cliente cliente, Automovel automovel,
-            LocalDateTime dataInicio, LocalDateTime dataFim, Double valorTotal,
+            LocalDate dataInicio, LocalDate dataFim, Double valorTotal,
             Double valorEntrada, String formaPagamento, Integer diaVencimento) {
         this();
         this.pedido = pedido;
@@ -101,19 +101,19 @@ public class Contrato {
         this.automovel = automovel;
     }
 
-    public LocalDateTime getDataInicio() {
+    public LocalDate getDataInicio() {
         return dataInicio;
     }
 
-    public void setDataInicio(LocalDateTime dataInicio) {
+    public void setDataInicio(LocalDate dataInicio) {
         this.dataInicio = dataInicio;
     }
 
-    public LocalDateTime getDataFim() {
+    public LocalDate getDataFim() {
         return dataFim;
     }
 
-    public void setDataFim(LocalDateTime dataFim) {
+    public void setDataFim(LocalDate dataFim) {
         this.dataFim = dataFim;
     }
 
@@ -157,11 +157,11 @@ public class Contrato {
         this.status = status;
     }
 
-    public LocalDateTime getDataCriacao() {
+    public LocalDate getDataCriacao() {
         return dataCriacao;
     }
 
-    public void setDataCriacao(LocalDateTime dataCriacao) {
+    public void setDataCriacao(LocalDate dataCriacao) {
         this.dataCriacao = dataCriacao;
     }
 }

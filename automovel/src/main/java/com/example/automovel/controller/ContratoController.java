@@ -14,7 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -63,7 +63,7 @@ public class ContratoController {
             @Parameter(description = "Valor financiado", required = true) @RequestParam Double valorFinanciado,
             @Parameter(description = "Número de parcelas", required = true) @RequestParam Integer numeroParcelas,
             @Parameter(description = "Taxa de juros", required = true) @RequestParam Double taxaJuros,
-            @Parameter(description = "Data primeiro vencimento", required = true) @RequestParam LocalDateTime dataPrimeiroVencimento) {
+            @Parameter(description = "Data primeiro vencimento", required = true) @RequestParam LocalDate dataPrimeiroVencimento) {
         try {
             Optional<ContratoCredito> contrato = contratoService.criarContratoCredito(
                     pedidoId, bancoId, valorEntrada, formaPagamento, diaVencimento,

@@ -1,7 +1,7 @@
 package com.example.automovel.model;
 
 import jakarta.persistence.*;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import com.example.automovel.model.enums.StatusContratoCredito;
 
 @Entity
@@ -26,7 +26,7 @@ public class ContratoCredito extends Contrato {
     private Double valorParcela;
 
     @Column
-    private LocalDateTime dataPrimeiroVencimento;
+    private LocalDate dataPrimeiroVencimento;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -38,10 +38,10 @@ public class ContratoCredito extends Contrato {
     }
 
     public ContratoCredito(Pedido pedido, Cliente cliente, Automovel automovel,
-            LocalDateTime dataInicio, LocalDateTime dataFim, Double valorTotal,
+            LocalDate dataInicio, LocalDate dataFim, Double valorTotal,
             Double valorEntrada, String formaPagamento, Integer diaVencimento,
             Banco banco, Double valorFinanciado, Integer numeroParcelas,
-            Double taxaJuros, LocalDateTime dataPrimeiroVencimento) {
+            Double taxaJuros, LocalDate dataPrimeiroVencimento) {
         super(pedido, cliente, automovel, dataInicio, dataFim, valorTotal,
                 valorEntrada, formaPagamento, diaVencimento);
         this.banco = banco;
@@ -99,11 +99,11 @@ public class ContratoCredito extends Contrato {
         return valorParcela;
     }
 
-    public LocalDateTime getDataPrimeiroVencimento() {
+    public LocalDate getDataPrimeiroVencimento() {
         return dataPrimeiroVencimento;
     }
 
-    public void setDataPrimeiroVencimento(LocalDateTime dataPrimeiroVencimento) {
+    public void setDataPrimeiroVencimento(LocalDate dataPrimeiroVencimento) {
         this.dataPrimeiroVencimento = dataPrimeiroVencimento;
     }
 
